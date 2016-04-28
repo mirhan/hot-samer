@@ -27,4 +27,4 @@ hot-samer
 
 前提是需要本地启动 elasticSearch, elasticSearch启动十分简单， 下载之后有jdk环境直接启动就行了.  
 
-另外elasticSearch需要安装一个 [plugin ](https://github.com/NLPchina/elasticsearch-sql)已支持sql语法搜索es
+另外elasticSearch需要安装一个 [plugin ](https://github.com/NLPchina/elasticsearch-sql)以支持sql语法搜索es

@@ -290,6 +290,26 @@ def collect_popular_music_into_es():
         print 'collect music:', helpers.bulk(es, bulk_list)
 
 
+def collect_the_channel_data(cid, start_uri=None, max_count = 10):
+
+    next_uri = start_uri or '/channel/%s/senses' % channel_id
+
+    recent_ugc_list = []
+    for i in range(0, max_count):
+        result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
+
+        print '===' + str(i)
+        print 'next_uri:  ' + next_uri
+        recent_ugc_list.extend(result_list)
+
+
+        if len(recent_ugc_list) % 1000 == 0:
+            insert_ugc_into_es(recent_ugc_list)
+            recent_ugc_list = []
+
+    if recent_ugc_list:
+        insert_ugc_into_es(recent_ugc_list)
+
 
 if __name__ == "__main__":
     if sys.argv[1] == 'get_photo':
@@ -318,6 +338,7 @@ if __name__ == "__main__":
         # 1276224 我发照片你来点赞
         # 1099203 眼镜自拍
         for cid in [1032823, 1033563, 1228982, 1312542, 967, 1021852, 1276224, 1099203]:
+        # for cid in [1032823]:
             if cid == 1312542:
                 collect_single_channel_data(cid, 3600) # 这个频道貌似内容太频繁了
             else:
@@ -340,4 +361,9 @@ if __name__ == "__main__":
 
     elif sys.argv[1] == 'get_music':
         collect_popular_music_into_es()
+
+    elif sys.argv[1] == 'get_qxg':
+        start_uri = '/channel/1032823/senses?offset=14516590920026096804'
+        collect_the_channel_data(1032823, start_uri=start_uri, max_count = 100)
+        pass
 
