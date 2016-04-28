@@ -295,7 +295,7 @@ def collect_popular_music_into_es():
         print 'collect music:', helpers.bulk(es, bulk_list)
 
 
-def collect_the_channel_data(cid, start_uri=None, max_count = 100):
+def collect_the_channel_data(cid, start_uri=None, max_count = 99999):
 
     next_uri = start_uri or '/channel/%s/senses' % cid
     last_url = '/channel/%s/senses?offset=0' % cid
@@ -322,11 +322,32 @@ def collect_the_channel_data(cid, start_uri=None, max_count = 100):
     if recent_ugc_list:
         insert_ugc_into_es(recent_ugc_list)
 
-cid_list = [1085548, 1228982]
+# cid_list1 = [1015326, 1097342]
+cid_list1 = []
+cid_list2 = [1104060, 1166214]
+cid_list3 = [1140084]
+# cid_list = [1015326, 1097342, 1104060, 1166214, 1140084]
+
+
+        # 
+        # 1125933 ST 1085548 ADMIN QXG 1033563 QXG 1228982 PRK  967 YMDZPK 1032823 ACUP
+        # 1015326 我这么美我不能死 1097342 你觉得好看的samers 1104060 卡他 1166214 DALUK 1140084 酒精胶囊
 
 def tmp_spider():
     gs = []
-    for cid in cid_list:
+    for cid in cid_list1:
+        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
+
+    gevent.joinall(gs)
+
+    gs = []
+    for cid in cid_list2:
+        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
+
+    gevent.joinall(gs)
+
+    gs = []
+    for cid in cid_list3:
         gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
 
     gevent.joinall(gs)
@@ -352,6 +373,7 @@ if __name__ == "__main__":
     elif sys.argv[1] == 'get_x':
         # 
         # 1125933 ST 1085548 ADMIN QXG 1033563 QXG 1228982 PRK  967 YMDZPK 1032823 ACUP
+        # 1015326 我这么美我不能死 1097342 你觉得好看的samers 1104060 卡他 1166214 DALUK 1140084 酒精胶囊
         # 1021852 每天为生活拍一张照片 1312542 NFZPWLH 1276224 我发照片你来点赞 1099203 眼镜自拍
         for cid in [1032823, 1033563, 1228982, 1312542, 967, 1021852, 1276224, 1099203]:
         # for cid in [1032823]:
@@ -380,7 +402,7 @@ if __name__ == "__main__":
 
     elif sys.argv[1] == 'get_qxg':
         # start_uri = '/channel/1085548/senses?offset=14516590920026096804'
-        collect_the_channel_data(1033563, start_uri=None, max_count = 99999)
+        collect_the_channel_data(1015326, start_uri=None, max_count = 99999)
         pass
 
     elif sys.argv[1] == 'get_tmp':
