@@ -17,6 +17,13 @@ from send_same import get_user_profile
 from send_same import get_user_recent_ugc_list
 from secret import header
 
+from hi_log import h_log
+
+
+
+
+
+
 es = Elasticsearch()
 # es.indices.create(index='same', ignore=400)
 
@@ -185,7 +192,6 @@ def collect_single_channel_data(cid, max_expire=3600):
     result_list, next_uri = get_photo_url_with_channel_id(cid)
     recent_ugc_list.extend(result_list)
     while len(result_list) > 0 and next_uri:
-        print 'next uri:', next_uri
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
         if result_list:
             if time.time() - int(float(result_list[-1]['created_at'])) > max_expire:
@@ -205,7 +211,6 @@ def get_latest_channels(filter_cate_ids=None, max_expire=3600):
     #     result_list = [x for x in result_list if x['cate'] in filter_cate_ids or []]
     channel_info_list.extend(result_list)
     while len(result_list) > 0 and next_uri:
-        print 'next uri:', next_uri
         result_list, next_uri = get_latest_channels_url(next_uri)
         if result_list:
             if time.time() - int(next_uri.split('=')[1][:10]) > max_expire:
@@ -290,26 +295,41 @@ def collect_popular_music_into_es():
         print 'collect music:', helpers.bulk(es, bulk_list)
 
 
-def collect_the_channel_data(cid, start_uri=None, max_count = 10):
+def collect_the_channel_data(cid, start_uri=None, max_count = 100):
 
-    next_uri = start_uri or '/channel/%s/senses' % channel_id
+    next_uri = start_uri or '/channel/%s/senses' % cid
+    last_url = '/channel/%s/senses?offset=0' % cid
 
     recent_ugc_list = []
     for i in range(0, max_count):
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
 
-        print '===' + str(i)
-        print 'next_uri:  ' + next_uri
+        print '=== ' + str(i)
+        if next_uri != None:
+            h_log(str(next_uri))
+
+        print next_uri
         recent_ugc_list.extend(result_list)
 
+        if start_uri == last_url or next_uri == None:
+            break
 
-        if len(recent_ugc_list) % 1000 == 0:
+        if len(recent_ugc_list) > 100:
             insert_ugc_into_es(recent_ugc_list)
             recent_ugc_list = []
+
 
     if recent_ugc_list:
         insert_ugc_into_es(recent_ugc_list)
 
+cid_list = [1085548, 1228982]
+
+def tmp_spider():
+    gs = []
+    for cid in cid_list:
+        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
+
+    gevent.joinall(gs)
 
 if __name__ == "__main__":
     if sys.argv[1] == 'get_photo':
@@ -330,13 +350,9 @@ if __name__ == "__main__":
     elif sys.argv[1] == 'get_latest_channels':
         get_latest_channels(600)
     elif sys.argv[1] == 'get_x':
-        # collect_single_channel_data(1032823, 86400*1) # tui
-        #
-        # collect_single_channel_data(1033563, 86400*1) # xinggan
-        # collect_single_channel_data(1228982, 86400*1) # pingru
-        # 1021852 每天生活拍照片频道
-        # 1276224 我发照片你来点赞
-        # 1099203 眼镜自拍
+        # 
+        # 1125933 ST 1085548 ADMIN QXG 1033563 QXG 1228982 PRK  967 YMDZPK 1032823 ACUP
+        # 1021852 每天为生活拍一张照片 1312542 NFZPWLH 1276224 我发照片你来点赞 1099203 眼镜自拍
         for cid in [1032823, 1033563, 1228982, 1312542, 967, 1021852, 1276224, 1099203]:
         # for cid in [1032823]:
             if cid == 1312542:
@@ -363,7 +379,10 @@ if __name__ == "__main__":
         collect_popular_music_into_es()
 
     elif sys.argv[1] == 'get_qxg':
-        start_uri = '/channel/1032823/senses?offset=14516590920026096804'
-        collect_the_channel_data(1032823, start_uri=start_uri, max_count = 100)
+        # start_uri = '/channel/1085548/senses?offset=14516590920026096804'
+        collect_the_channel_data(1033563, start_uri=None, max_count = 99999)
         pass
+
+    elif sys.argv[1] == 'get_tmp':
+        tmp_spider()
 
