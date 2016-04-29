@@ -43,12 +43,22 @@ if __name__ == "__main__":
             samer_list = rs['hits']['hits']
             if not samer_list:
                 break
+            # 1443974400 is a timestamp
             for samer in samer_list:
-                if int(samer['_source']['created_at']) > 1443974400 and int(samer['_source']['likes']) > 50:
-                    h_log(samer['_source']['photo'], samer['_source']['channel_id'])
-                print i
-                i = i + 1;
+                if int(samer['_source']['created_at']) > 1443974400 and 2 < int(samer['_source']['likes']) <=4:
+                    
+                    photo_url = samer['_source']['photo']
+                    if 'imageMogr' in photo_url:
+                        continue
+
+                    # h_log(photo_url, samer['_source']['channel_id'])
+                    if photo_url:
+                        h_log(photo_url, "002_004")
+                        i = i + 1
+                        print i
+
             sid = rs['_scroll_id']
+            
         except:
             print 'error!!!'
             break
