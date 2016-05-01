@@ -19,10 +19,19 @@ from secret import header
 
 from hi_log import h_log
 
-
-
-
-
+lovely_cid_list = [
+1125933, # ST 
+1085548, # QXG of admin,
+1033563, # QXG 
+1228982, # PRK,
+967    , # YMDZPK 
+1032823, # ACUP
+1015326, # 我这么美我不能死 
+1097342, # 你觉得好看的samers 
+1104060, # 卡他 
+1166214, # DALUK 
+1140084, # 酒精胶囊
+]
 
 es = Elasticsearch()
 # es.indices.create(index='same', ignore=400)
@@ -295,24 +304,34 @@ def collect_popular_music_into_es():
         print 'collect music:', helpers.bulk(es, bulk_list)
 
 
-def collect_the_channel_data(cid, start_uri=None, max_count = 99999):
+def update_channel_data(cid, start_uri=None, max_count = 99999):
 
     next_uri = start_uri or '/channel/%s/senses' % cid
     last_url = '/channel/%s/senses?offset=0' % cid
 
     recent_ugc_list = []
+    data_exists = False
     for i in range(0, max_count):
+        if data_exists:
+            break
+
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
 
         print '=== ' + str(i)
         if next_uri != None:
             h_log(str(next_uri))
 
-        print next_uri
         recent_ugc_list.extend(result_list)
 
         if start_uri == last_url or next_uri == None:
             break
+
+        for ugc in result_list:
+
+            data_exists = es.exists(index="same", doc_type="user_ugc",  id=ugc['id'])
+            print data_exists
+            if es.exists(index="same", doc_type="user_ugc",  id=ugc['id']):
+                break
 
         if len(recent_ugc_list) > 100:
             insert_ugc_into_es(recent_ugc_list)
@@ -321,36 +340,24 @@ def collect_the_channel_data(cid, start_uri=None, max_count = 99999):
 
     if recent_ugc_list:
         insert_ugc_into_es(recent_ugc_list)
+        pass
 
-# cid_list1 = [1015326, 1097342]
-cid_list1 = []
-cid_list2 = [1104060, 1166214]
-cid_list3 = [1140084]
-# cid_list = [1015326, 1097342, 1104060, 1166214, 1140084]
+def get_cids_per_2(data_list):
+    for i, v in enumerate(data_list):
+        if i % 2 == 0:
+            if i == len(data_list) - 1:
+                yield [data_list[i], -1]
+            else:
+                yield [data_list[i], data_list[i + 1]]
 
+                
+def update_spider():
 
-        # 
-        # 1125933 ST 1085548 ADMIN QXG 1033563 QXG 1228982 PRK  967 YMDZPK 1032823 ACUP
-        # 1015326 我这么美我不能死 1097342 你觉得好看的samers 1104060 卡他 1166214 DALUK 1140084 酒精胶囊
-
-def tmp_spider():
-    gs = []
-    for cid in cid_list1:
-        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
-
-    gevent.joinall(gs)
-
-    gs = []
-    for cid in cid_list2:
-        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
-
-    gevent.joinall(gs)
-
-    gs = []
-    for cid in cid_list3:
-        gs.append(gevent.spawn(collect_the_channel_data, cid=cid, start_uri=None))
-
-    gevent.joinall(gs)
+    for cid_list in get_cids_per_2(lovely_cid_list):
+        gs = []
+        for cid in cid_list:
+            gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
+        gevent.joinall(gs)
 
 if __name__ == "__main__":
     if sys.argv[1] == 'get_photo':
@@ -402,9 +409,8 @@ if __name__ == "__main__":
 
     elif sys.argv[1] == 'get_qxg':
         # start_uri = '/channel/1085548/senses?offset=14516590920026096804'
-        collect_the_channel_data(1015326, start_uri=None, max_count = 99999)
-        pass
+        update_channel_data(1015326, start_uri=None, max_count = 99999)
 
-    elif sys.argv[1] == 'get_tmp':
-        tmp_spider()
+    elif sys.argv[1] == 'get_update':
+        update_spider()
 
