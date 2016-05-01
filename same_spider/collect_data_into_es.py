@@ -317,7 +317,7 @@ def update_channel_data(cid, start_uri=None, max_count = 99999):
 
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
 
-        print '=== ' + str(i)
+        print '===', str(i), str(cid)
         if next_uri != None:
             h_log(str(next_uri))
 
@@ -326,12 +326,12 @@ def update_channel_data(cid, start_uri=None, max_count = 99999):
         if start_uri == last_url or next_uri == None:
             break
 
+        # exit if exists
         for ugc in result_list:
-
             data_exists = es.exists(index="same", doc_type="user_ugc",  id=ugc['id'])
-            print data_exists
             if es.exists(index="same", doc_type="user_ugc",  id=ugc['id']):
                 break
+        # exit if exists end
 
         if len(recent_ugc_list) > 100:
             insert_ugc_into_es(recent_ugc_list)
@@ -346,7 +346,7 @@ def get_cids_per_2(data_list):
     for i, v in enumerate(data_list):
         if i % 2 == 0:
             if i == len(data_list) - 1:
-                yield [data_list[i], -1]
+                yield [data_list[i]]
             else:
                 yield [data_list[i], data_list[i + 1]]
 
