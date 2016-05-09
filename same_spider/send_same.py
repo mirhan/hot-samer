@@ -17,7 +17,6 @@ monkey.patch_all()
 from secret import header, cookies
 
 
-
 def send(product_id):
     data = {'address_id': 53036, 'product_id': product_id}
     #header['Authorization'] = 'Token ' + sys.argv[1]
@@ -34,6 +33,7 @@ def send(product_id):
             print '============err', e
         gevent.sleep(0.05)
 
+
 def get_categories():
     #res = requests.get('https://resource.ohsame.com/categories/categories-list-cate.html?no-control&cate=2', headers=header, cookies=cookies, verify=False)
     print sys.argv[2]
@@ -41,10 +41,12 @@ def get_categories():
     res = requests.get(sys.argv[2], headers=header, verify=False)
     print res.text
 
+
 def yangmao():
     header['Content-Type'] = 'application/json'
     res = requests.post(sys.argv[2], headers=header, verify=False)
     print res.text
+
 
 def get_user_profile(uid):
     url = 'https://v2.same.com/user/%s/profile' % uid
@@ -58,16 +60,17 @@ def get_user_profile(uid):
             print 'incorrect response:', data
             return {}
     except ValueError as e:
-        print 'res ValueError',e, url
+        print 'res ValueError', e, url
     except Exception, e:
         print '-------------err:', e, url
+
 
 def get_user_recent_ugc_list(uid):
     results = []
     now = time.time()
     last_results, next_uri = get_user_senses_and_next_url(uid)
     results.extend(last_results)
-    while len(last_results) > 0:
+    while len(last_results) > 0 and next_uri != None:
         if (now - int(float(last_results[-1]['created_at']))) > 86400 * 30 * 6:
             break
         last_results, next_uri = get_user_senses_and_next_url(uid, next_uri)
@@ -90,10 +93,11 @@ def get_user_senses_and_next_url(uid, next_uri=None):
         else:
             return [], None
     except ValueError as e:
-        print 'res ValueError',e, url, res.text
+        print 'res ValueError', e, url, res.text
     except Exception, e:
         print '-------------err:', e, url
     return [], None
+
 
 def get_activity_senses(cid):
     url = 'http://v2.same.com/activity/senses/channel/1021984?order=hostest&from=-7%20day'
