@@ -25,13 +25,14 @@ def get_file_lines(file_path):
 
 
 es = Elasticsearch()
+client = Elasticsearch()
+
 # es.indices.create(index='same', ignore=400)
 
 
 def collect_user_recent_ugc_by_uids(uids):
     for i, uid in enumerate(uids):
         collect_user_recent_ugc(uid)
-
 
 is_exists = {}
 
@@ -40,9 +41,11 @@ if __name__ == "__main__":
         # pass
 
     if sys.argv[1] == 'get_the_one':
-        client = Elasticsearch()
-        s = Search().using(client).query("match", created_at='1462802370')
-        response = s.execute()
+        OFFSET = '+8h'  # TODO: didn't figuer out why
+        s = Search().using(client).filter('range', timestamp={'gte': 'now-1h' + OFFSET}).sort('-likes')
+        # response = s.execute()
+        for i in s:
+            print i.likes, i.timestamp
 
     elif sys.argv[1] == 'get_profiles':
         uids = get_file_lines(FILE_PATH)
