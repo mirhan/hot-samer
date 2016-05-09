@@ -2,21 +2,9 @@
 # encoding: utf-8
 
 import sys
-import json
-import time
-import requests
-import datetime
 import gevent
-import random
-from gevent import monkey
 from elasticsearch import Elasticsearch
-from elasticsearch import helpers
 from elasticsearch_dsl import Search
-from spider_same import get_channels_ids_with_cate_id
-from spider_same import get_photo_url_with_channel_id
-from send_same import get_user_profile
-from send_same import get_user_recent_ugc_list
-from secret import header
 
 from collect_data_into_es import collect_profile_data_multi
 from collect_data_into_es import collect_user_recent_ugc
@@ -26,6 +14,7 @@ from hi_log import h_log
 
 FILE_PATH = r'/Users/hanchang/Developer/hot-samer_mirhan/trunk/same_spider/uids.log'
 
+
 def get_file_lines(file_path):
     open_file = open(file_path, 'r+').readlines()
 
@@ -33,7 +22,6 @@ def get_file_lines(file_path):
         open_file[i] = open_file[i].strip()
 
     return open_file
-
 
 
 es = Elasticsearch()
@@ -51,9 +39,8 @@ if __name__ == "__main__":
     # if sys.argv[1] == 'get_photo':
         # pass
 
-
     if sys.argv[1] == 'get_the_one':
-        client = Elasticsearch() 
+        client = Elasticsearch()
         s = Search().using(client).query("match", created_at='1462802370')
         response = s.execute()
 
@@ -104,29 +91,25 @@ if __name__ == "__main__":
                 # 1443974400 is a timestamp
                 for samer in samer_list:
                     if (int(samer['_source']['created_at']) > 1443974400 and int(samer['_source']['likes']) > 0) \
-                    or (int(samer['_source']['created_at']) <= 1443974400 and int(samer['_source']['likes']) > 20):
-                        
+                            or (int(samer['_source']['created_at']) <= 1443974400 and int(samer['_source']['likes']) > 20):
+
                         photo_url = samer['_source']['photo']
                         if 'imageMogr' in photo_url:
                             continue
 
-                        uid = samer['_source']['author_uid'] 
+                        uid = samer['_source']['author_uid']
                         if not uid in is_exists:
                             is_exists[uid] = True
 
                             # print uid
                             h_log(uid)
 
-
                             i = i + 1
-                            if i % 100 ==0:
+                            if i % 100 == 0:
                                 print i
 
                 sid = rs['_scroll_id']
-                
+
             except:
                 print 'error!!!'
                 break
-
-
-
