@@ -146,7 +146,6 @@ def collect_profile_data(uid):
     # body['ugc_times'] = recent_ugc_times
     body['ugc_times'] = 0
     body['timestamp'] = datetime.datetime.fromtimestamp(body.get('created_at', time.time()))
-        body.get('created_at', time.time()))
     return body
     # try:
     #     print es.index(index='same', doc_type='user_profile', id=int(profile['user']['id']), body=body)
