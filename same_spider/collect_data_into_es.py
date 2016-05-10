@@ -55,6 +55,7 @@ def get_multi_rank_likes(cid, pages=3):
         # gevent.sleep(random.randint(1,3))
     return results_list
 
+
 def collect_likes_rank_data(cid):
     bulk_list = []
     results_list = get_multi_rank_likes(cid)
@@ -115,8 +116,8 @@ def collect_user_recent_ugc(uid):
 
 
 def collect_profile_data(uid):
-    now = time.time()
-    max_interval = 86400 * 30 * 12
+    # now = time.time()
+    # max_interval = 86400 * 30 * 12
     profile = get_user_profile(uid)
     # gevent.sleep(0.1)
     if not profile or not profile.get('user'):
@@ -329,17 +330,17 @@ def update_channel_data(cid, start_uri=None, max_count=99999):
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
 
         print '===', str(i), str(cid)
-        if next_uri != None:
+        if next_uri is not None:
             h_log(str(next_uri))
 
         recent_ugc_list.extend(result_list)
 
-        if start_uri == last_url or next_uri == None:
+        if start_uri == last_url or next_uri is None:
             break
 
         # exit if exists
         for ugc in result_list:
-            data_exists = es.exists(index="same", doc_type="user_ugc",  id=ugc['id'])
+            data_exists = es.exists(index="same", doc_type="user_ugc", id=ugc['id'])
             if es.exists(index="same", doc_type="user_ugc", id=ugc['id']):
                 break
         # exit if exists end
@@ -394,7 +395,6 @@ if __name__ == "__main__":
         # 1015326 我这么美我不能死 1097342 你觉得好看的samers 1104060 卡他 1166214 DALUK 1140084 酒精胶囊
         # 1021852 每天为生活拍一张照片 1312542 NFZPWLH 1276224 我发照片你来点赞 1099203 眼镜自拍
         for cid in [1032823, 1033563, 1228982, 1312542, 967, 1021852, 1276224, 1099203]:
-        # for cid in [1032823]:
             if cid == 1312542:
                 collect_single_channel_data(cid, 3600)  # 这个频道貌似内容太频繁了
             else:
@@ -411,7 +411,7 @@ if __name__ == "__main__":
         offset = 1000
         init_uid = 4500000
         while init_uid < 4510000:
-            gs.append(gevent.spawn(collect_profile_data_multi, range(init_uid, init_uid+offset)))
+            gs.append(gevent.spawn(collect_profile_data_multi, range(init_uid, init_uid + offset)))
             init_uid += offset
         print 'start gevent done, count:%d' % len(gs)
         gevent.joinall(gs)
