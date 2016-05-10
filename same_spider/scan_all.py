@@ -36,16 +36,27 @@ def collect_user_recent_ugc_by_uids(uids):
 
 is_exists = {}
 
+def get_last_hour():
+    OFFSET = '+8h'  # TODO: didn't figuer out why
+    s = Search().using(client).filter('range', timestamp={'gte': 'now-1h' + OFFSET}).sort('-likes')
+    # response = s.execute()
+
+    ret = []
+    for i in s:
+        print i.likes, i.timestamp, i.channel_id, i.photo
+        ret.append(i)
+        # s1 = str(i.likes) + str(i.timestamp) + str(i.channel_id) + str(i.photo)
+        # h_log(s1)
+
+    return ret
+
+
 if __name__ == "__main__":
     # if sys.argv[1] == 'get_photo':
         # pass
 
-    if sys.argv[1] == 'get_the_one':
-        OFFSET = '+8h'  # TODO: didn't figuer out why
-        s = Search().using(client).filter('range', timestamp={'gte': 'now-1h' + OFFSET}).sort('-likes')
-        # response = s.execute()
-        for i in s:
-            print i.likes, i.timestamp
+    if sys.argv[1] == 'get_last_hour':
+        get_last_hour()
 
     elif sys.argv[1] == 'get_profiles':
         uids = get_file_lines(FILE_PATH)
@@ -77,7 +88,7 @@ if __name__ == "__main__":
 
         gevent.joinall(gs)
 
-    else:
+    elif 'scan_all':
 
         rs = es.search(index="same", body={"query": {"match_all": {}}}, search_type='scan', size=100, scroll='30s')
 

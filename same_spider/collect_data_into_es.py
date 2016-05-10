@@ -16,22 +16,11 @@ from spider_same import get_photo_url_with_channel_id
 from send_same import get_user_profile
 from send_same import get_user_recent_ugc_list
 from secret import header
+# from same_datas import lovely_cid_list
+from same_datas import all_cid_list
 
 from hi_log import h_log
 
-lovely_cid_list = [
-    1125933,  # ST
-    1085548,  # QXG of admin,
-    1033563,  # QXG
-    1228982,  # PRK,
-    967,      # YMDZPK
-    1032823,  # ACUP
-    1015326,  # 我这么美我不能死
-    1097342,  # 你觉得好看的samers
-    1104060,  # 卡他
-    1166214,  # DALUK
-    1140084,  # 酒精胶囊
-]
 
 es = Elasticsearch()
 # es.indices.create(index='same', ignore=400)
@@ -365,7 +354,7 @@ def get_cids_per_2(data_list):
 
 def update_spider():
 
-    for cid_list in get_cids_per_2(lovely_cid_list):
+    for cid_list in get_cids_per_2(all_cid_list):
         gs = []
         for cid in cid_list:
             gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
@@ -423,5 +412,5 @@ if __name__ == "__main__":
         # start_uri = '/channel/1085548/senses?offset=14516590920026096804'
         update_channel_data(1015326, start_uri=None, max_count=99999)
 
-    elif sys.argv[1] == 'get_update':
+    elif sys.argv[1] == 'update':
         update_spider()

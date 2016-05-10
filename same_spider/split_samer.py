@@ -11,25 +11,20 @@ import shutil
 
 from elasticsearch import Elasticsearch
 
-orignal_dir = r'D:\developer\pics\05_20_2'
-# orignal_dir = '/mnt/developer/pics/20_9999'
+ORIGINAL_DIR = r'/Users/hanchang/Pictures/pics'
+NEW_DIR = r'/Users/hanchang/Pictures/samer_pics/old'
+# ORIGINAL_DIR = '/mnt/developer/pics/20_9999'
 
 es = Elasticsearch()
 
-def get_jpg_name(url):
-    if url:
-        return url.rsplit('/', 1)[-1]
-    return None
+# def get_jpg_name(url):
+#     if url:
+#         return url.rsplit('/', 1)[-1]
+#     return None
 
 
 def get_jpg_name(url):
-    print 'url'
-    print url
-    if url:
-        # print 'get_jpg_name 1'
-        if 'imageMogr' in url:
-            return None
-        # print 'get_jpg_name 2'
+    if url and 'imageMogr' not in url:
         return url.rsplit('/', 1)[-1]
     return None
 
@@ -48,25 +43,35 @@ if __name__ == '__main__':
                 break
             
             for samer in samer_list:
+                if samer ['_type'] != 'user_ugc':  # type = 'user_ugc'
+                    continue
                 # print '2'
                 # 1443974400 is a timestamp
                 # if int(samer['_source']['created_at']) > 1443974400 and int(samer['_source']['likes']) > 20:
-                if int(samer['_source']['created_at']) > 1443974400:
+                # print
+                # print samer['_source']['created_at']
+                # print '2.1'
+                if int(samer['_source']['created_at']) <= 1443974400:
                     
+                    # print '2.2'
+                    # print samer
+                    # print '==='
+                    # print 'join_at' in samer ['_source']
+                    # print '2.3'
                     pic_name = get_jpg_name(samer['_source']['photo'])
                     # print '4.5'
                     if not pic_name:
                         continue;
 
-                    pic_path = os.path.join(orignal_dir, pic_name)
+                    pic_path = os.path.join(ORIGINAL_DIR, pic_name)
                     # print '5'
                     if os.path.isfile(pic_path):
                         # mkdir
                         likes = samer['_source']['likes']
-                        new_dir = os.path.join(orignal_dir, str(likes))
+                        new_dir = os.path.join(NEW_DIR, str(likes))
                         # print '3'
                         if not os.path.exists(new_dir):
-                            print new_dir
+                            # print new_dir
                             os.mkdir(new_dir)
                             # print '3.5'
                         shutil.move(pic_path, new_dir)
