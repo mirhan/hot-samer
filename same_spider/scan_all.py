@@ -100,6 +100,30 @@ if __name__ == "__main__":
                         if 'imageMogr' in photo_url:
                             continue
 
+                        # channel_id = 1097342
+
+                        # print '1'
+
+                        # print '0'
+                        # print samer
+                        # print samer['_source']
+                        # print '1.1'
+                        if samer['_source']['channel_id'] and int(samer['_source']['channel_id']) != 1097342:
+                            continue
+
+                        print '2'
+                        if True:
+                            # print samer
+                            if samer['_source']['txt'] and samer['_source']['txt'] != '':
+                                print '3'
+                                print 'txt' in samer['_source']
+                                print type(samer['_source']['txt'])
+                                print '3.1'
+                                # print 
+                                h_log(samer['_source']['txt'])
+                                print '4'
+                            continue
+
                         uid = samer['_source']['author_uid']
                         if not uid in is_exists:
                             is_exists[uid] = True
