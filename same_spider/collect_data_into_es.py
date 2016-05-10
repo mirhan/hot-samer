@@ -17,7 +17,7 @@ from send_same import get_user_profile
 from send_same import get_user_recent_ugc_list
 from secret import header
 # from same_datas import lovely_cid_list
-from same_datas import all_cid_list
+from same_datas import *
 
 from hi_log import h_log
 
