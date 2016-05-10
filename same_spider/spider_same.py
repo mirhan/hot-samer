@@ -5,14 +5,15 @@ import sys
 import gevent
 import requests
 import platform
+import json
+from gevent import monkey
 
 from secret import header
 
 if platform.system() == 'Darwin':
     requests.packages.urllib3.disable_warnings()
-import json
-from gevent import monkey
 monkey.patch_all()
+
 
 def get_channels_ids_with_cate_id(cate_id, offset=None):
     if offset:
@@ -28,6 +29,7 @@ def get_channels_ids_with_cate_id(cate_id, offset=None):
     except Exception, e:
         print '-------------err:', e
         return []
+
 
 def get_photo_url_with_channel_id(channel_id, next_uri=None):
     if next_uri:
