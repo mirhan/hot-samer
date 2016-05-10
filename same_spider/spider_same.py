@@ -43,7 +43,12 @@ def get_photo_url_with_channel_id(channel_id, next_uri=None):
         if not result:
             print 'empty channel content', url
             return [], None
-        return result, data['data']['next']
+
+        if 'next' in data['data']:
+            next_uri = data['data']['next']
+        else:
+            next_uri = None
+        return result, next_uri
     except Exception, e:
         print 'get_photo_url_with_channel_id err', e, url
         return [], None
