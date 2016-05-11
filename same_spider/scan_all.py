@@ -65,7 +65,7 @@ def get_channel_top():
     r = s_q.execute()
     logfile = 'tmp.log'
     clear_h_log(logfile=logfile)
-    generate_html(r.hits.hits)
+    generate_html(r.hits.hits, logfile='top3.html')
 
 if __name__ == "__main__":
     # if sys.argv[1] == 'get_photo':

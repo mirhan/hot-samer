@@ -5,15 +5,13 @@ from hi_log import *
 
 FILENAME = r'top.html'
 
-head = r'''<html>
+head = r'''<!DOCTYPE html>
+<html>
 <head>
 <meta charset="utf-8"/>
 <style>
 div.img {
-    margin: 5px;
     border: 1px solid #ccc;
-    float: left;
-    width: 180px;
 }
 
 div.img:hover {
@@ -23,6 +21,7 @@ div.img:hover {
 div.img img {
     width: 100%;
     height: auto;
+    border-bottom: 1px solid #ccc;
 }
 
 div.desc {
@@ -30,9 +29,42 @@ div.desc {
     text-align: center;
     font-family: "Microsoft YaHei" ! important;
 }
+
+* {
+    box-sizing: border-box;
+}
+
+.responsive {
+    padding: 0 6px;
+    float: left;
+    width: 19.99999%;
+}
+
+@media only screen and (max-width: 700px){
+    .responsive {
+        width: 49.99999%;
+        margin: 6px 0;
+    }
+}
+
+@media only screen and (max-width: 500px){
+    .responsive {
+        width: 100%;
+    }
+}
+
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+    height:30px;
+}
 </style>
 </head>
 <body>
+
+<h2 style="text-align:center">Responsive Image Gallery</h2>
+
 '''
 
 tail = r'''</body>
@@ -40,24 +72,31 @@ tail = r'''</body>
 '''
 
 
-def generate_html(samer_list):
-    clear_h_log(logfile=FILENAME)
-    h_log(head, logfile=FILENAME)
+def generate_html(samer_list, logfile=FILENAME):
+    clear_h_log(logfile=logfile)
+    h_log(head, logfile=logfile)
 
-    for samer in samer_list:
+    for i, samer in enumerate(samer_list):
         if '_source' not in samer:
             continue
         if 'photo' not in samer['_source']:
             continue
 
-        if samer['_source']['photo']:
-
-            s = r'''<div class="img">
+        photo = samer['_source']['photo']
+        author_name = samer['_source']['author_name']
+        if photo:
+            s = r'''<div class="responsive">
+  <div class="img">
     <a target="_blank" href="%s">
-        <img src="%s" alt="Mountains">
+      <img src="%s" alt="%s">
     </a>
     <div class="desc">%s</div>
-</div>''' % (samer['_source']['photo'], samer['_source']['photo'], samer['_source']['author_name'])
-            h_log(s, logfile=FILENAME)
+  </div>
+</div>''' % (photo, photo, author_name, author_name)
+            h_log(s, logfile=logfile)
+
+        if i % 5 == 4:
+            h_log(r'<div class="clearfix"></div>', logfile=logfile)
+
     pass
-    h_log(tail, logfile=FILENAME)
+    h_log(tail, logfile=logfile)
