@@ -48,34 +48,32 @@ def get_last_hour():
     for i in s:
         print i.likes, i.timestamp, i.channel_id, i.photo
         ret.append(i)
-        # s1 = str(i.likes) + str(i.timestamp) + str(i.channel_id) + str(i.photo)
-        # h_log(s1)
 
     return ret
 
 
-def get_channel_top():
+def get_last_day_top(top_len=50):
     OFFSET = '+8h'  # TODO: didn't figuer out why
 
     s = Search().using(client)
-    time_range = {'gte': 'now-1d' + OFFSET, 'lte': 'now-30m' + OFFSET}
+    time_range = {'gte': 'now-2d' + OFFSET, 'lte': 'now-1d-30m' + OFFSET}
     s_q = s.filter('range', timestamp=time_range).sort('-likes')[:100]
+    r = s_q.execute()
+    return r.hits.hits
+
+    # logfile = 'tmp.log'
+    # clear_h_log(logfile=logfile)
+    # generate_html(r.hits.hits, logfile='top3.html')
+
     # channel_id = 1125933
     # s_q = s.query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
-    r = s_q.execute()
-    logfile = 'tmp.log'
-    clear_h_log(logfile=logfile)
-    generate_html(r.hits.hits, logfile='top3.html')
 
 if __name__ == "__main__":
-    # if sys.argv[1] == 'get_photo':
-        # pass
-
     if sys.argv[1] == 'get_last_hour':
         get_last_hour()
 
-    elif sys.argv[1] == 'get_c':
-        get_channel_top()
+    elif sys.argv[1] == 'get_top':
+        get_last_day_top()
 
     elif sys.argv[1] == 'get_profiles':
         uids = get_file_lines(FILE_PATH)

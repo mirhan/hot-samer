@@ -343,9 +343,9 @@ def update_channel_data(cid, start_uri=None, max_count=99999):
         pass
 
 
-def update_spider():
+def update_channels(cid_list):
     gs = []
-    for i, cid in enumerate(all_cid_list):
+    for i, cid in enumerate(cid_list):
         gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
         if i % 2 == 1:
             gevent.joinall(gs)
@@ -407,4 +407,4 @@ if __name__ == "__main__":
         update_channel_data(1015326, start_uri=None, max_count=99999)
 
     elif sys.argv[1] == 'update':
-        update_spider()
+        update_channels(all_cid_list)
