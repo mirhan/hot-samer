@@ -4,20 +4,26 @@
 import os
 import codecs
 
-LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samer_of_hour.html')
+DEFAULT_LOG = r'h_log.log'
 
-def clear_h_log():
-    new_fp = codecs.open(LOG_PATH, 'w', encoding='utf8')
+
+def make_log_path(filename):
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    pass
+
+
+def clear_h_log(logfile=DEFAULT_LOG):
+    new_fp = codecs.open(make_log_path(logfile), 'w', encoding='utf8')
     new_fp.close()
 
 
-def h_log(log_string):
+def h_log(log_string, logfile=DEFAULT_LOG):
 
     # print log_string
-    new_fp = codecs.open(LOG_PATH, 'a', encoding='utf8')
+    new_fp = codecs.open(make_log_path(logfile), 'a', encoding='utf8')
     try:
         # print type(log_string)
-        new_fp.write(log_string)
+        new_fp.write(log_string + '\n')
         new_fp.flush()
     except Exception as e:
         print type(e)

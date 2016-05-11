@@ -9,6 +9,7 @@ from elasticsearch_dsl import Search
 from collect_data_into_es import collect_profile_data_multi
 from collect_data_into_es import collect_user_recent_ugc
 
+from template import generate_html
 from hi_log import *
 
 
@@ -53,31 +54,18 @@ def get_last_hour():
     return ret
 
 
-def get_channal_top():
+def get_channel_top():
     OFFSET = '+8h'  # TODO: didn't figuer out why
-    time_range = {'gte': 'now-90m' + OFFSET, 'lte': 'now-30m' + OFFSET}
+    time_range = {'gte': 'now-1d' + OFFSET, 'lte': 'now-30m' + OFFSET}
 
     channel_id = 1125933
     # s = Search().using(client).filter('range', timestamp=time_range).sort('-likes')[:100]
     s = Search().using(client)
     s_q = s.query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
-    clear_h_log()
-    h_log('''<meta charset="utf-8"/>
-<style type="text/css">
-img
-{
-background:url(bg_apple_little.gif) no-repeat center center;
-/*height:200px;*/
-width:250px;
-}
-</style>''')
-    for i in s_q:
-        # print i.likes, i.photo
-        if i.photo:
-            print i.likes
-            h_log(r'<a href=%s><img src=%s></a>' % (i.photo, i.photo))
-            h_log(i.author_name)
-    # pass
+    r = s_q.execute()
+    logfile = 'tmp.log'
+    clear_h_log(logfile=logfile)
+    generate_html(r.hits.hits)
 
 if __name__ == "__main__":
     # if sys.argv[1] == 'get_photo':
@@ -87,8 +75,7 @@ if __name__ == "__main__":
         get_last_hour()
 
     elif sys.argv[1] == 'get_c':
-        get_channal_top()
-        # pass
+        get_channel_top()
 
     elif sys.argv[1] == 'get_profiles':
         uids = get_file_lines(FILE_PATH)
