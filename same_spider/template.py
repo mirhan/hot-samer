@@ -76,7 +76,8 @@ def generate_html(samer_list, logfile=FILENAME):
     clear_h_log(logfile=logfile)
     h_log(head, logfile=logfile)
 
-    for i, samer in enumerate(samer_list):
+    i = 0
+    for samer in samer_list:
         if '_source' not in samer:
             continue
         if 'photo' not in samer['_source']:
@@ -86,6 +87,7 @@ def generate_html(samer_list, logfile=FILENAME):
         author_name = samer['_source']['author_name']
         likes = samer['_source']['likes']
         if photo:
+            i = i + 1
             s = u'''<div class="responsive">
   <div class="img">
     <a target="_blank" href="%s">
@@ -99,5 +101,4 @@ def generate_html(samer_list, logfile=FILENAME):
         if i % 5 == 4:
             h_log(r'<div class="clearfix"></div>', logfile=logfile)
 
-    pass
     h_log(tail, logfile=logfile)
