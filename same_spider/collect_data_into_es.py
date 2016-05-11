@@ -343,21 +343,15 @@ def update_channel_data(cid, start_uri=None, max_count=99999):
         pass
 
 
-def get_cids_per_2(data_list):
-    for i, v in enumerate(data_list):
-        if i % 2 == 0:
-            if i == len(data_list) - 1:
-                yield [data_list[i]]
-            else:
-                yield [data_list[i], data_list[i + 1]]
-
-
 def update_spider():
+    gs = []
+    for i, cid in enumerate(all_cid_list):
+        gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
+        if i % 2 == 1:
+            gevent.joinall(gs)
+            gs = []
 
-    for cid_list in get_cids_per_2(all_cid_list):
-        gs = []
-        for cid in cid_list:
-            gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
+    if gs:
         gevent.joinall(gs)
 
 if __name__ == "__main__":
