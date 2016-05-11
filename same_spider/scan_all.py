@@ -36,6 +36,7 @@ def collect_user_recent_ugc_by_uids(uids):
 
 is_exists = {}
 
+
 def get_last_hour():
     OFFSET = '+8h'  # TODO: didn't figuer out why
     time_range = {'gte': 'now-1h-30m' + OFFSET, 'lte': 'now-30m' + OFFSET}
@@ -51,15 +52,17 @@ def get_last_hour():
 
     return ret
 
+
 def get_channal_top():
     OFFSET = '+8h'  # TODO: didn't figuer out why
     time_range = {'gte': 'now-90m' + OFFSET, 'lte': 'now-30m' + OFFSET}
 
     channel_id = 1125933
     # s = Search().using(client).filter('range', timestamp=time_range).sort('-likes')[:100]
-    s = Search().using(client).query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
+    s = Search().using(client)
+    s_q = s.query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
     clear_h_log()
-    h_log( '''<meta charset="utf-8"/>
+    h_log('''<meta charset="utf-8"/>
 <style type="text/css">
 img
 {
@@ -68,12 +71,12 @@ background:url(bg_apple_little.gif) no-repeat center center;
 width:250px;
 }
 </style>''')
-    for i in s:
+    for i in s_q:
         # print i.likes, i.photo
         if i.photo:
             print i.likes
-            h_log( r'<a href=%s><img src=%s></a>' % (i.photo, i.photo))
-            h_log(  i.author_name)
+            h_log(r'<a href=%s><img src=%s></a>' % (i.photo, i.photo))
+            h_log(i.author_name)
     # pass
 
 if __name__ == "__main__":
@@ -82,7 +85,6 @@ if __name__ == "__main__":
 
     if sys.argv[1] == 'get_last_hour':
         get_last_hour()
-
 
     elif sys.argv[1] == 'get_c':
         get_channal_top()
@@ -160,13 +162,13 @@ if __name__ == "__main__":
                                 print 'txt' in samer['_source']
                                 print type(samer['_source']['txt'])
                                 print '3.1'
-                                # print 
+                                # print
                                 h_log(samer['_source']['txt'])
                                 print '4'
                             continue
 
                         uid = samer['_source']['author_uid']
-                        if not uid in is_exists:
+                        if uid not in is_exists:
                             is_exists[uid] = True
 
                             # print uid
