@@ -10,7 +10,7 @@ from gevent import monkey
 
 from secret import header
 
-if platform.system() == 'Darwin':
+if platform.system() == 'Windows':
     requests.packages.urllib3.disable_warnings()
 monkey.patch_all()
 
