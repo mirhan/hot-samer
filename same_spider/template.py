@@ -28,6 +28,7 @@ div.img img {
 div.desc {
     padding: 15px;
     text-align: center;
+    font-family: "Microsoft YaHei" ! important;
 }
 </style>
 </head>
