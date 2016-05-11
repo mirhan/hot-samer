@@ -56,12 +56,12 @@ def get_last_hour():
 
 def get_channel_top():
     OFFSET = '+8h'  # TODO: didn't figuer out why
-    time_range = {'gte': 'now-1d' + OFFSET, 'lte': 'now-30m' + OFFSET}
 
-    channel_id = 1125933
-    # s = Search().using(client).filter('range', timestamp=time_range).sort('-likes')[:100]
     s = Search().using(client)
-    s_q = s.query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
+    time_range = {'gte': 'now-1d' + OFFSET, 'lte': 'now-30m' + OFFSET}
+    s_q = s.filter('range', timestamp=time_range).sort('-likes')[:100]
+    # channel_id = 1125933
+    # s_q = s.query('match', channel_id=channel_id).filter('range', timestamp=time_range).sort('-likes')[:200]
     r = s_q.execute()
     logfile = 'tmp.log'
     clear_h_log(logfile=logfile)

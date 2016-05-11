@@ -84,15 +84,16 @@ def generate_html(samer_list, logfile=FILENAME):
 
         photo = samer['_source']['photo']
         author_name = samer['_source']['author_name']
+        likes = samer['_source']['likes']
         if photo:
-            s = r'''<div class="responsive">
+            s = u'''<div class="responsive">
   <div class="img">
     <a target="_blank" href="%s">
       <img src="%s" alt="%s">
     </a>
-    <div class="desc">%s</div>
+    <div class="desc">@%s<br/>%s ❤</div>
   </div>
-</div>''' % (photo, photo, author_name, author_name)
+</div>''' % (photo, photo, author_name, author_name, likes)
             h_log(s, logfile=logfile)
 
         if i % 5 == 4:
