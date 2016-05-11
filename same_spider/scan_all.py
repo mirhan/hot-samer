@@ -56,7 +56,7 @@ def get_last_day_top(top_len=50):
     OFFSET = '+8h'  # TODO: didn't figuer out why
 
     s = Search().using(client)
-    time_range = {'gte': 'now-2d' + OFFSET, 'lte': 'now-1d-30m' + OFFSET}
+    time_range = {'gte': 'now-1d' + OFFSET, 'lte': 'now' + OFFSET}
     s_q = s.filter('range', timestamp=time_range).sort('-likes')[:100]
     r = s_q.execute()
     return r.hits.hits
