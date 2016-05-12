@@ -343,7 +343,7 @@ def update_channels(cid_list):
     gs = []
     for i, cid in enumerate(cid_list):
         gs.append(gevent.spawn(update_channel_data, cid=cid, start_uri=None))
-        if i % 2 == 1:
+        if i + 1 % 100 == 0:
             gevent.joinall(gs)
             gs = []
 
