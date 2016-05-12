@@ -305,42 +305,38 @@ def collect_popular_music_into_es():
         print 'collect music:', helpers.bulk(es, bulk_list)
 
 
-def update_channel_data(cid, start_uri=None, max_count=99999):
+def update_channel_data(cid, start_uri=None, max_count=99999, insert_only=True):
 
     next_uri = start_uri or '/channel/%s/senses' % cid
     last_url = '/channel/%s/senses?offset=0' % cid
 
     recent_ugc_list = []
     data_exists = False
-    for i in range(0, max_count):
-        if data_exists:
-            break
-
+    for i in range(max_count):
         result_list, next_uri = get_photo_url_with_channel_id(cid, next_uri=next_uri)
 
         print '===', str(i), str(cid)
-        if next_uri is not None:
-            h_log(str(next_uri))
 
         recent_ugc_list.extend(result_list)
 
         if start_uri == last_url or next_uri is None:
             break
 
-        # exit if exists
-        for ugc in result_list:
-            data_exists = es.exists(index="same", doc_type="user_ugc", id=ugc['id'])
-            if es.exists(index="same", doc_type="user_ugc", id=ugc['id']):
-                break
-        # exit if exists end
+        if insert_only:
+            for ugc in result_list:
+                data_exists = es.exists(index="same", doc_type="user_ugc", id=ugc['id'])
+                if data_exists:
+                    break
 
         if len(recent_ugc_list) > 100:
             insert_ugc_into_es(recent_ugc_list)
             recent_ugc_list = []
 
+        if data_exists:
+            break
+
     if recent_ugc_list:
         insert_ugc_into_es(recent_ugc_list)
-        pass
 
 
 def update_channels(cid_list):

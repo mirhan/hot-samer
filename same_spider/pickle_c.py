@@ -25,15 +25,6 @@ all_cid_list = set((
 )
 
 
-def dump_p(c_list, filename=DEFAULT_PK):
-    pk_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR, filename)
-
-    with codecs.open(pk_path, 'w+') as f:
-        pstr = pickle.dump(c_list, f)
-        f.close()
-        return pstr
-
-
 def load_p(filename=DEFAULT_PK):
     pk_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR, filename)
 
@@ -46,6 +37,15 @@ def load_p(filename=DEFAULT_PK):
     except:
         print 'load_p failed'
         return None
+
+
+def dump_p(c_list, filename=DEFAULT_PK):
+    pk_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR, filename)
+
+    with codecs.open(pk_path, 'w+') as f:
+        pstr = pickle.dump(c_list, f)
+        f.close()
+        return pstr
 
 if __name__ == '__main__':
     x = load_p('d')
