@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-lovely_cid_list = (
+lovely_cid_list = set((
     1125933,  # ST
     1085548,  # QXG of admin,
     1033563,  # QXG
@@ -14,19 +14,19 @@ lovely_cid_list = (
     1166214,  # DALUK
     1140084,  # 酒精胶囊
     1000052,  # les sky
-)
+))
 
-tmp_cid_list = (
+tmp_cid_list = set((
     1027482,
-)
+))
 
-all_cid_list = (
+all_cid_list = set((
     1033563,
     1032823,
     967,
     1125933,
     1015326,
-    1166214, 
+    1166214,
     1244040,  # TA来听我的演唱会
     1085548,
     1312542,  # 你发自拍 我来画
@@ -121,11 +121,11 @@ all_cid_list = (
     1288629,
     1056705,
     1015915,
-)
+))
 
-exclude_cid_list = (
+exclude_cid_list = set((
     1244040,  # TA来听我的演唱会
     1312542,  # 你发自拍 我来画
     1314963,  # 画自拍活动发自拍
-    1018   ,  # 渣手练渣字涂渣图
-    )
+    1018,     # 渣手练渣字涂渣图
+))
