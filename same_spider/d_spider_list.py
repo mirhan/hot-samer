@@ -25,3 +25,9 @@ def get_todo_queue():
 def set_todo_queue(urls):
     if urls:
         dump_p(urls, filename=TODO_QUEUE)
+
+
+def addto_todo_queue(url):
+    urls = get_todo_queue()
+    urls.add(url)
+    set_todo_queue(urls)
