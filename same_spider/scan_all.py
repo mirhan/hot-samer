@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
         gevent.joinall(gs)
 
-    elif 'scan_all':
+    elif sys.argv[1] == 'scan_all':
 
         rs = es.search(index="same", body={"query": {"match_all": {}}}, search_type='scan', size=100, scroll='30s')
 
