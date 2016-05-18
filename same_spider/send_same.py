@@ -70,7 +70,7 @@ def get_user_recent_ugc_list(uid):
     now = time.time()
     last_results, next_uri = get_user_senses_and_next_url(uid)
     results.extend(last_results)
-    while len(last_results) > 0 and next_uri != None:
+    while len(last_results) > 0 and next_uri:
         if (now - int(float(last_results[-1]['created_at']))) > 86400 * 30 * 6:
             break
         last_results, next_uri = get_user_senses_and_next_url(uid, next_uri)
