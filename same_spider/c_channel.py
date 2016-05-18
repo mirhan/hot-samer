@@ -20,7 +20,7 @@ s = Search().using(Elasticsearch())
 
 
 def get_all_cids():
-    a = A('terms', field='channel_id')
+    a = A('terms', field='channel_id', size=0)
     s.aggs.bucket('channel_ids', a)
     response = s.execute()
     try:
