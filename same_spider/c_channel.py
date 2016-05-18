@@ -3,14 +3,19 @@
 
 import requests
 import sys
+import platform
+
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, A
+import gevent
+from gevent import monkey
 
 from d_spider_list import get_has_been
 from d_spider_list import addto_todo_queue
 from secret import header
 import json
 
+monkey.patch_all()
 s = Search().using(Elasticsearch())
 
 
@@ -62,9 +67,26 @@ def scan_channel(cid):
             break
 
 
+def scan_channels(cids):
+    gs = []
+    for i, cid in enumerate(cids):
+        gs.append(gevent.spawn(scan_channel, cid=cid))
+        if i + 1 % 100 == 0:
+            gevent.joinall(gs)
+            gs = []
+
+    if gs:
+        gevent.joinall(gs)
+
+
 if __name__ == '__main__':
+    if platform.system() == 'Windows':
+        requests.packages.urllib3.disable_warnings()
+
     if sys.argv[1] == 'c':
         cid = 1125933
         scan_channel(cid)
+    elif sys.argv[1] == 'cids':
+        scan_channels(get_all_cids())
     elif sys.argv[1] == 'test':
         print get_all_cids()
