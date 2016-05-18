@@ -3,11 +3,26 @@
 
 import requests
 import sys
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search, A
 
 from d_spider_list import get_has_been
 from d_spider_list import addto_todo_queue
 from secret import header
 import json
+
+s = Search().using(Elasticsearch())
+
+
+def get_all_cids():
+    a = A('terms', field='channel_id')
+    s.aggs.bucket('channel_ids', a)
+    response = s.execute()
+    try:
+        return [i.key for i in response.aggregations.channel_ids.buckets]
+    except Exception, e:
+        print 'get_all_cids ERROR:', e
+        return []
 
 
 def get_channel_url_response(url):
@@ -51,3 +66,5 @@ if __name__ == '__main__':
     if sys.argv[1] == 'c':
         cid = 1125933
         scan_channel(cid)
+    elif sys.argv[1] == 'test':
+        print get_all_cids()
