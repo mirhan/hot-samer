@@ -47,7 +47,7 @@ def update_todo_queue(urls):
     sem.acquire()
     todo_queue = get_todo_queue()
     todo_queue.update(urls)
-    set_todo_queue(urls)
+    set_todo_queue(todo_queue)
     print 'update_todo_queue: update lenth =', str(len(urls))
     sem.release()
 
