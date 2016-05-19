@@ -3,7 +3,7 @@
 
 import codecs
 import os
-import pickle
+import cPickle as pickle
 
 
 DATA_DIR = r'data'
@@ -29,7 +29,7 @@ def load_p(filename=DEFAULT_PK):
     pk_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR, filename)
 
     try:
-        with codecs.open(pk_path, 'r+') as f:
+        with codecs.open(pk_path, 'rb+') as f:
             x = pickle.load(f)
             f.close()
             return x
@@ -42,7 +42,7 @@ def load_p(filename=DEFAULT_PK):
 def dump_p(c_list, filename=DEFAULT_PK):
     pk_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), DATA_DIR, filename)
 
-    with codecs.open(pk_path, 'w+') as f:
+    with codecs.open(pk_path, 'wb+') as f:
         pstr = pickle.dump(c_list, f)
         f.close()
         return pstr
