@@ -9,7 +9,7 @@ import gevent
 from gevent import monkey
 
 from d_spider_list import get_has_been
-from d_spider_list import addto_todo_queue
+from d_spider_list import update_todo_queue
 from d_spider_list import get_all_cids
 from secret import header
 import json
@@ -42,27 +42,33 @@ def get_channel_url_response(url):
 def scan_channel(cid):
     next_url = 'https://v2.same.com/channel/%s/senses' % str(cid)
     start_url = next_url
+    urls = set()
     while True:
         print 'scan_channel: next_url =', next_url
         _, next_url = get_channel_url_response(url=next_url)
-        if next_url in get_has_been():
-            continue
+        # if next_url in get_has_been():
+        #     continue
 
-        addto_todo_queue(next_url)
+        urls.add(next_url)
+        # addto_todo_queue(next_url)
 
         if start_url == next_url or not next_url:
             break
 
+    update_todo_queue(urls)
+
 
 def scan_channels(cids):
-    gs = []
-    for i, cid in enumerate(cids):
-        gs.append(gevent.spawn(scan_channel, cid=cid))
-        if i + 1 % 100 == 0:
-            gevent.joinall(gs)
-            gs = []
 
-    if gs:
+    cids = list(cids)
+
+    n = 10
+    cids_list = [cids[i:i + 10] for i in range(0, len(cids), n)]
+
+    for cids in cids_list:
+        gs = []
+        for cid in cids:
+            gs.append(gevent.spawn(scan_channel, cid=cid))
         gevent.joinall(gs)
 
 

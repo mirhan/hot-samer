@@ -35,7 +35,7 @@ def load_p(filename=DEFAULT_PK):
             return x
         return None
     except:
-        print 'load_p failed'
+        print 'load_p %s failed' % filename
         return None
 
 
