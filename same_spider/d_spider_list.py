@@ -4,6 +4,7 @@
 import sys
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, A
+from gevent.coros import BoundedSemaphore
 
 from pickle_c import load_p, dump_p
 
@@ -13,6 +14,7 @@ HAS_BEEN_USER = 'has_been_user.pk'
 TODO_QUEUE_USER = 'todo_queue_user.pk'
 
 s = Search().using(Elasticsearch())
+sem = BoundedSemaphore(1)
 
 
 def get_has_been():
@@ -39,6 +41,16 @@ def addto_todo_queue(url):
     urls = get_todo_queue()
     urls.add(url)
     set_todo_queue(urls)
+
+
+def update_todo_queue(urls):
+    sem.acquire()
+    todo_queue = get_todo_queue()
+    todo_queue.update(urls)
+    set_todo_queue(urls)
+    print 'update_todo_queue: update lenth =', str(len(urls))
+    sem.release()
+
 
 ####
 
@@ -72,7 +84,7 @@ def addto_todo_queue_user(url):
 
 
 def get_all_cids():
-    a = A('terms', field='channel_id', size=0)
+    a = A('terms', field='channel_id', size=0, order={"_count": "desc"})
     s.aggs.bucket('channel_ids', a)
     response = s.execute()
     try:
