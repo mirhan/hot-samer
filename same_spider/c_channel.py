@@ -5,29 +5,16 @@ import requests
 import sys
 import platform
 
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, A
 import gevent
 from gevent import monkey
 
 from d_spider_list import get_has_been
 from d_spider_list import addto_todo_queue
+from d_spider_list import get_all_cids
 from secret import header
 import json
 
 monkey.patch_all()
-s = Search().using(Elasticsearch())
-
-
-def get_all_cids():
-    a = A('terms', field='channel_id', size=0)
-    s.aggs.bucket('channel_ids', a)
-    response = s.execute()
-    try:
-        return [i.key for i in response.aggregations.channel_ids.buckets]
-    except Exception, e:
-        print 'get_all_cids ERROR:', e
-        return []
 
 
 def get_channel_url_response(url):

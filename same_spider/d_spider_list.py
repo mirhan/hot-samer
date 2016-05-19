@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import sys
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, A
 
@@ -70,6 +71,17 @@ def addto_todo_queue_user(url):
     set_todo_queue(urls)
 
 
+def get_all_cids():
+    a = A('terms', field='channel_id', size=0)
+    s.aggs.bucket('channel_ids', a)
+    response = s.execute()
+    try:
+        return [i.key for i in response.aggregations.channel_ids.buckets]
+    except Exception, e:
+        print 'get_all_cids ERROR:', e
+        return []
+
+
 def get_all_uids():
     a = A('terms', field='author_uid', size=0)
     s.aggs.bucket('author_uids', a)
@@ -80,3 +92,7 @@ def get_all_uids():
         print 'get_all_uids ERROR:', e
         return []
     pass
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'test':
+        print get_all_cids()
