@@ -51,6 +51,9 @@ def scan_channel(cid):
 
         if next_url not in has_been and next_url not in todo_queue:
             urls.add(next_url)
+        else:
+            print 'cid %s finished'
+            break
 
         if start_url == next_url or not next_url:
             break
