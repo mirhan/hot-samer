@@ -9,7 +9,7 @@ import gevent
 from gevent import monkey
 
 from d_spider_list import get_has_been
-from d_spider_list import update_todo_queue
+from d_spider_list import update_todo_queue, get_todo_queue
 from d_spider_list import get_all_cids
 from secret import header
 import json
@@ -42,15 +42,15 @@ def get_channel_url_response(url):
 def scan_channel(cid):
     next_url = 'https://v2.same.com/channel/%s/senses' % str(cid)
     start_url = next_url
+    has_been = [x for x in get_has_been() if str(cid) in x]
+    todo_queue = [x for x in get_todo_queue() if str(cid) in x]
     urls = set()
     while True:
         print 'scan_channel: next_url =', next_url
         _, next_url = get_channel_url_response(url=next_url)
-        # if next_url in get_has_been():
-        #     continue
 
-        urls.add(next_url)
-        # addto_todo_queue(next_url)
+        if next_url not in has_been and next_url not in todo_queue:
+            urls.add(next_url)
 
         if start_url == next_url or not next_url:
             break
