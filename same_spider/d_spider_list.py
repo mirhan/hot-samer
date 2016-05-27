@@ -14,6 +14,7 @@ HAS_BEEN_USER = 'has_been_user.pk'
 TODO_QUEUE_USER = 'todo_queue_user.pk'
 
 s = Search().using(Elasticsearch())
+sem_has_been = BoundedSemaphore(1)
 sem = BoundedSemaphore(1)
 
 
@@ -25,6 +26,17 @@ def get_has_been():
 def set_has_been(urls):
     if urls:
         dump_p(urls, filename=HAS_BEEN)
+
+
+def update_has_been(urls):
+    sem_has_been.acquire()
+
+    has_been = get_has_been()
+    has_been.update(urls)
+    set_has_been(has_been)
+    print 'update_has_been: update lenth =', str(len(urls))
+
+    sem_has_been.release()
 
 
 def get_todo_queue():
@@ -43,10 +55,13 @@ def addto_todo_queue(url):
     set_todo_queue(urls)
 
 
-def update_todo_queue(urls):
+def update_todo_queue(urls, remove=False):
     sem.acquire()
     todo_queue = get_todo_queue()
-    todo_queue.update(urls)
+    if remove:
+        todo_queue = [x for x in todo_queue if x not in urls]
+    else:
+        todo_queue.update(urls)
     set_todo_queue(todo_queue)
     print 'update_todo_queue: update lenth =', str(len(urls))
     sem.release()
