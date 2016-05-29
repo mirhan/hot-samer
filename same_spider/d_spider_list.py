@@ -16,6 +16,10 @@ TODO_QUEUE_USER = 'todo_queue_user.pk'
 s = Search().using(Elasticsearch())
 sem_has_been = BoundedSemaphore(1)
 sem = BoundedSemaphore(1)
+sem_class_has_been = BoundedSemaphore(1)
+sem_class_todo_queue = BoundedSemaphore(1)
+
+UPDATE_WHEN = 50
 
 
 def get_has_been():
@@ -40,6 +44,34 @@ def update_has_been(urls):
     print 'update_has_been: update lenth =', str(len(urls))
 
     sem_has_been.release()
+
+
+class HasBeen(object):
+    """docstring for HasBeen"""
+    def __init__(self):
+        super(HasBeen, self).__init__()
+        self.has_been = get_has_been()
+        self.update_cnt = 0
+
+    def get(self):
+        return self.has_been
+
+    def update(self, urls, remove=False):
+        sem_class_has_been.acquire()
+        if remove:
+            self.has_been = [x for x in self.has_been if x not in urls]
+        else:
+            self.has_been.extend(urls)
+        self.update_cnt = self.update_cnt + 1
+        print 'HasBeen update_cnt = %d' % self.update_cnt
+        if self.update_cnt % UPDATE_WHEN == 0:
+            set_has_been(self.has_been)
+        sem_class_has_been.release()
+
+    def sync(self):
+        sem_class_has_been.acquire()
+        set_has_been(self.has_been)
+        sem_class_has_been.release()
 
 
 def get_todo_queue():
@@ -71,6 +103,34 @@ def update_todo_queue(urls, remove=False):
     set_todo_queue(todo_queue)
     print 'update_todo_queue: update lenth =', str(len(urls))
     sem.release()
+
+
+class TodoQueue(object):
+    """docstring for TodoQueue"""
+    def __init__(self):
+        super(TodoQueue, self).__init__()
+        self.todo_queue = get_todo_queue()
+        self.update_cnt = 0
+
+    def get(self):
+        return self.todo_queue
+
+    def update(self, urls, remove=False):
+        sem_class_todo_queue.acquire()
+        if remove:
+            self.todo_queue = [x for x in self.todo_queue if x not in urls]
+        else:
+            self.todo_queue.extend(urls)
+        self.update_cnt = self.update_cnt + 1
+        print 'TodoQueue update_cnt = %d' % self.update_cnt
+        if self.update_cnt % UPDATE_WHEN == 0:
+            set_todo_queue(self.todo_queue)
+        sem_class_todo_queue.release()
+
+    def sync(self):
+        sem_class_todo_queue.acquire()
+        set_todo_queue(self.todo_queue)
+        sem_class_todo_queue.release()
 
 
 ####

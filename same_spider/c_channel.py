@@ -10,14 +10,13 @@ from functools import partial
 import gevent
 from gevent import monkey
 
-
-from d_spider_list import update_has_been, get_has_been
-from d_spider_list import update_todo_queue, get_todo_queue
-from d_spider_list import get_all_cids
+from d_spider_list import *
 from secret import header
 from collect_data_into_es import insert_ugc_into_es
 
 monkey.patch_all()
+g_has_been = HasBeen()
+g_todo_queue = TodoQueue()
 
 
 def get_channel_url_response(url):
@@ -40,13 +39,14 @@ def get_channel_url_response(url):
             return [], None
     else:
         print 'get_channel_url_response ERROR: url =', str(url)
+        return [], None
 
 
 def scan_channel(cid):
     next_url = 'https://v2.same.com/channel/%s/senses' % str(cid)
     start_url = next_url
-    has_been = [x for x in get_has_been() if str(cid) in x]
-    todo_queue = [x for x in get_todo_queue() if str(cid) in x]
+    has_been = [x for x in g_has_been.get() if str(cid) in x]
+    todo_queue = [x for x in g_todo_queue.get() if str(cid) in x]
     urls = []
     while True:
         print 'scan_channel: next_url =', next_url
@@ -61,33 +61,45 @@ def scan_channel(cid):
         if start_url == next_url or not next_url:
             break
 
-    update_todo_queue(urls)
+    g_todo_queue.update(urls)
 
 
 def dump_channel(urls):
     ugcs = []
     for url in urls:
+        print 'dump_channel:', url
         response, _ = get_channel_url_response(url=url)
         ugcs.extend(response)
     if ugcs:
         insert_ugc_into_es(ugcs)
+        return 'OK'
+    else:
+        return 'ERR'
 
 
 def move_to_has_been(urls, gs_0):
-    print 'move_to_has_been'
-    print urls
-    update_todo_queue(urls, remove=True)
-    update_has_been(urls)
+    print 'move_to_has_been, len(urls) = %d' % len(urls)
+    g_todo_queue.update(urls, remove=True)
+    g_has_been.update(urls)
 
 
 def scan_dump_channels(cids):
 
-    urls = list(get_todo_queue())
-    n = 10
+    urls = list(g_todo_queue.get())
+    n = 15
     urls_list = [urls[i:i + n] for i in range(0, len(urls), n)]
-    gs = [gevent.spawn(dump_channel, xs) for xs in urls_list]
-    [g.link(partial(move_to_has_been, g.args[0])) for g in gs]
-    gevent.joinall(gs)
+    gs = []
+    for i, urls in enumerate(urls_list):
+        gs.append(gevent.spawn(dump_channel, urls))
+        if i % n == 0:
+            [g.link_value(partial(move_to_has_been, g.args[0])) for g in gs]
+            gevent.joinall(gs)
+            gs = []
+
+    if gs:
+        [g.link_value(partial(move_to_has_been, g.args[0])) for g in gs]
+        gevent.joinall(gs)
+        gs = []
 
     cids = list(cids)
 
@@ -109,3 +121,6 @@ if __name__ == '__main__':
         scan_dump_channels(get_all_cids())
     elif sys.argv[1] == 'test':
         print get_all_cids()
+
+    g_has_been.sync()
+    g_todo_queue.sync()
