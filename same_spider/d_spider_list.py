@@ -19,7 +19,10 @@ sem = BoundedSemaphore(1)
 
 
 def get_has_been():
-    has_been = load_p(filename=HAS_BEEN) or set()
+    has_been = load_p(filename=HAS_BEEN) or []
+    has_been = list(has_been)
+    if None in has_been:
+        has_been.remove(None)
     return has_been
 
 
@@ -32,7 +35,7 @@ def update_has_been(urls):
     sem_has_been.acquire()
 
     has_been = get_has_been()
-    has_been.update(urls)
+    has_been.extend(urls)
     set_has_been(has_been)
     print 'update_has_been: update lenth =', str(len(urls))
 
@@ -40,8 +43,11 @@ def update_has_been(urls):
 
 
 def get_todo_queue():
-    has_been = load_p(filename=TODO_QUEUE) or set()
-    return has_been
+    todo_queue = load_p(filename=TODO_QUEUE) or []
+    todo_queue = list(todo_queue)
+    if None in todo_queue:
+        todo_queue.remove(None)
+    return todo_queue
 
 
 def set_todo_queue(urls):
@@ -61,7 +67,7 @@ def update_todo_queue(urls, remove=False):
     if remove:
         todo_queue = [x for x in todo_queue if x not in urls]
     else:
-        todo_queue.update(urls)
+        todo_queue.extend(urls)
     set_todo_queue(todo_queue)
     print 'update_todo_queue: update lenth =', str(len(urls))
     sem.release()
@@ -120,6 +126,29 @@ def get_all_uids():
         return []
     pass
 
+
+def find_between(s, first, last):
+    try:
+        start = s.index(first) + len(first)
+        end = s.index(last, start)
+        return s[start:end]
+    except ValueError:
+        return ""
+
+
+def get_has_been_cids():
+    return load_p(filename='has_been_cids.pk') or set()
+
 if __name__ == '__main__':
     if sys.argv[1] == 'test':
-        print get_all_cids()
+        print len(get_has_been_cids())
+        # cids = []
+        # for url in get_todo_queue():
+        #     if url:
+        #         cid = int(find_between(url, 'channel/', '/senses'))
+        #         cids.append(cid)
+        # cids = set(cids)
+
+        # # print cids
+        # dump_p(cids, filename='has_been_cids.pk')
+
