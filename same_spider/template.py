@@ -102,3 +102,26 @@ def generate_html(samer_list, logfile=FILENAME):
             h_log(r'<div class="clearfix"></div>', logfile=logfile)
 
     h_log(tail, logfile=logfile)
+
+
+def generate_html_tmp(pics, logfile=FILENAME):
+    clear_h_log(logfile=logfile)
+    h_log(head, logfile=logfile)
+
+    i = 0
+    for pic in pics:
+        if True:
+            i = i + 1
+            s = u'''<div class="responsive">
+  <div class="img">
+    <a target="_blank" href="%s">
+      <img src="%s" alt="%s">
+    </a>
+  </div>
+</div>''' % (pic, pic, pic)
+            h_log(s, logfile=logfile)
+
+        if i % 5 == 4:
+            h_log(r'<div class="clearfix"></div>', logfile=logfile)
+
+    h_log(tail, logfile=logfile)
